@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "pathcch.h": "c",
+        "stat.h": "c",
+        "dirent.h": "c",
+        "stdio.h": "c"
+    }
+}
