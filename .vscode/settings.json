@@ -3,6 +3,10 @@
         "pathcch.h": "c",
         "stat.h": "c",
         "dirent.h": "c",
-        "stdio.h": "c"
+        "stdio.h": "c",
+        "rgfw.h": "c",
+        "glad.h": "c",
+        "*.rh": "c",
+        "windows.h": "c"
     }
 }
