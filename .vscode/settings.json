@@ -7,6 +7,10 @@
         "rgfw.h": "c",
         "glad.h": "c",
         "*.rh": "c",
-        "windows.h": "c"
+        "windows.h": "c",
+        "cstdint": "c",
+        "stdfloat": "cpp",
+        "tzl.h": "c",
+        "stdbool.h": "c"
     }
 }
