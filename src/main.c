@@ -1,6 +1,13 @@
+// ./build.exe && ./game.exe
+
+#define TZL_IMPLEMENTATION
+#include "tzl.h"
+
 #include <stdio.h>
 #include <assert.h>
 #include <stdbool.h>
+
+#include <glad/glad.h>
 
 #define RGFW_IMPLEMENTATION
 // #define RGFW_OPENGL
@@ -12,11 +19,6 @@
 #define STB_DS_IMPLEMENTATION
 #include "../vendor/stb_ds.h"
 
-#include <glad/glad.h>
-
-#define TZL_IMPLEMENTATION
-#include "tzl.h"
-
 int main(int argc, char **argv)
 {
     RGFW_window *win = RGFW_createWindow("name", RGFW_RECT(100, 100, 500, 500), (uint64_t)0);
@@ -25,6 +27,11 @@ int main(int argc, char **argv)
 
     if (!gladLoadGL())
         return -1;
+
+    // Load the extension to allow spv
+
+    // Load shader spv src
+
 
     while (RGFW_window_shouldClose(win) == RGFW_FALSE)
     {
@@ -39,6 +46,8 @@ int main(int argc, char **argv)
         glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
 
         glClear(GL_COLOR_BUFFER_BIT);
+
+
 
         RGFW_window_swapBuffers(win);
     }
