@@ -54,7 +54,7 @@ bool compile_program()
 
     char **flags = NULL;
     arrput(flags, "-Wall");
-    arrput(flags, "-O3");
+    arrput(flags, "-O0");
     arrput(flags, "-g");
 
     char **libs = NULL;

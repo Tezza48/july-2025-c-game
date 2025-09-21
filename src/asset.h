@@ -2,13 +2,17 @@
 
 #include "tzl.h"
 
+typedef void (*assets_destructor)(void *asset);
+
 typedef struct assets *assets;
 
 tzl_bool assets_create_alloc(assets *out_assets);
 
-void assets_add(assets assets, const char *name, void *data);
+/*
+ This takes ownership of the asset if you provide a destructor
+*/
+void assets_add(assets assets, const char *name, void *data, assets_destructor dtor);
 
-#define assets_get(a, type, name) ((type)_assets_get((a), (name)))
-void *_assets_get(assets assets, const char *name);
+void *assets_get(assets assets, const char *name);
 
 void assets_free(assets assets);

@@ -48,14 +48,9 @@ int main(int argc, char **argv)
 
     assets assets;
     assets_create_alloc(&assets);
-    {
-        shader mat = NULL;
-        if (!shader_load_src("shader.vert", "shader.frag", &mat))
-        {
-            return -1;
-        }
-        assets_add(assets, "shader", mat);
-    }
+
+    if (!assets_load_shader(assets, "shader", "shader.vert", "shader.frag", NULL))
+        return -1;
 
     while (RGFW_window_shouldClose(win) == RGFW_FALSE)
     {
@@ -67,17 +62,15 @@ int main(int argc, char **argv)
             }
         }
 
-        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+        glClearColor(0.9f, 0.9f, 0.9f, 1.0f);
 
         glClear(GL_COLOR_BUFFER_BIT);
-
-        shader_use(assets_get(assets, shader, "shader"));
+        shader_use(assets_get_shader(assets, "shader"));
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
         RGFW_window_swapBuffers(win);
     }
 
-    shader_free(assets_get(assets, shader, "shader"));
     assets_free(assets);
 
     RGFW_window_close(win);

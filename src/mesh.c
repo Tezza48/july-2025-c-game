@@ -194,3 +194,31 @@ void shader_free(shader shader)
     _shader_cleanup(shader);
     free(shader);
 }
+
+// Asset system integration
+static inline void _shader_free_asset(void *s)
+{
+    shader_free((shader)s);
+}
+
+bool assets_load_shader(assets assets, const char *name, const char *vert_src, const char *frag_src, shader *out_shader)
+{
+    bool ok = false;
+
+    shader s;
+    if (!shader_load_src(vert_src, frag_src, &s))
+    {
+        TZL_LOG_ERROR("Failed to load shader src");
+        goto cleanup;
+    }
+
+    assets_add(assets, name, s, _shader_free_asset);
+
+    if (out_shader)
+        *out_shader = s;
+
+    ok = true;
+
+cleanup:
+    return ok;
+}
