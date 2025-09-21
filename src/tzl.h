@@ -1,7 +1,15 @@
 #pragma once
+
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+
+// Error logging
+#ifndef TZL_NO_ERROR
+#include <stdio.h>
+/// Log an error to stderr
+#define TZL_LOG_ERROR(msg, ...) fprintf(stderr, "TZL Error (%s:%d): " msg "\n", __FILE_NAME__, __LINE__, ##__VA_ARGS__)
+#endif
 
 // Convenient primitives
 
@@ -540,7 +548,16 @@ static inline tzl_f32 tzl_clampf(tzl_f32 value, tzl_f32 min, tzl_f32 max)
     return value;
 }
 
+// File IO
+
+tzl_bool tzl_load_file(const char *path, char **buff, tzl_size *buffLen);
+
 #if !defined(TZL_NO_SHORT_NAMES)
+
+#ifndef TZL_NO_ERROR
+#define LOG_ERROR TZL_LOG_ERROR
+#endif
+
 typedef tzl_size size;
 
 typedef tzl_i8 i8;
@@ -616,8 +633,58 @@ typedef tzl_mat4x4 mat4x4;
 #define rad_to_degf tzl_rad_to_degf
 #define clampf tzl_clampf
 
+#define load_file tzl_load_file
+
 #endif
 
 #ifdef TZL_IMPLEMENTATION
+#include <stdio.h>
+/// @brief Loads the contents of file at "path". Allocates memory in "buff"
+/// @param path Path to the file
+/// @param buff Buffer to allocate and store the file in
+/// @param buffLen Number of bytes in "buff"
+/// @return true if the operation was successful
+tzl_bool tzl_load_file(const char *path, char **out_buff, tzl_size *out_buff_len)
+{
+    tzl_bool ok = false;
+
+    char *buff;
+    tzl_size len;
+
+    FILE *f = fopen(path, "rb");
+    if (!f)
+    {
+        TZL_LOG_ERROR("Failed to open file: %s", path);
+        ok = false;
+        goto cleanup;
+    }
+
+    tzl_size size = 0;
+    len = 0;
+
+    fseek(f, 0, SEEK_END);
+    size = ftell(f);
+    rewind(f);
+
+    buff = calloc(size, sizeof(char));
+    if (!buff)
+    {
+        ok = false;
+        goto cleanup;
+    }
+    fread(buff, 1, size, f);
+
+    len = size;
+
+    *out_buff_len = len;
+    *out_buff = buff;
+    ok = true;
+
+cleanup:
+    if (f)
+        fclose(f);
+
+    return ok;
+}
 
 #endif
