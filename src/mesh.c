@@ -2,9 +2,93 @@
 #include <glad/glad.h>
 #include <stdio.h>
 
-struct model
+#include "../vendor/stb_ds.h"
+
+struct vertex_layout
 {
+    GLuint layout;
 };
+
+bool vertex_layout_create(vertex_layout *out_layout)
+{
+    vertex_layout layout = calloc(1, sizeof(*layout));
+    if (!layout)
+    {
+        TZL_LOG_ERROR("Failed to create vertex_layout");
+        return false;
+    }
+
+    glCreateVertexArrays(1, &layout->layout);
+
+    glEnableVertexArrayAttrib(layout->layout, 0);
+    // ...
+
+    glVertexArrayAttribFormat(layout->layout, 0, 3, GL_FLOAT, GL_FALSE, offsetof(vertex, pos));
+    // ...
+
+    glVertexArrayAttribBinding(layout->layout, 0, 0);
+    // ...
+
+    *out_layout = layout;
+
+    return true;
+}
+
+void vertex_layout_free(vertex_layout layout)
+{
+    glDeleteVertexArrays(1, &layout->layout);
+    free(layout);
+}
+
+struct mesh
+{
+    size num_vertices;
+    size num_indices;
+    GLuint vbuffer, ibuffer;
+};
+
+bool mesh_create(mesh_src_data asset, mesh *out_mesh)
+{
+    mesh mesh = calloc(1, sizeof(*mesh));
+    if (!mesh)
+    {
+        TZL_LOG_ERROR("Failed to create mesh");
+        return false;
+    }
+
+    glCreateBuffers(1, &mesh->vbuffer);
+    glCreateBuffers(1, &mesh->ibuffer);
+
+    mesh->num_vertices = arrlen(asset.vertices);
+    mesh->num_indices = arrlen(asset.indices);
+
+    glNamedBufferData(mesh->vbuffer, mesh->num_vertices * sizeof(vertex), asset.vertices, GL_STATIC_DRAW);
+    glNamedBufferData(mesh->ibuffer, mesh->num_indices * sizeof(u32), asset.indices, GL_STATIC_DRAW);
+
+    *out_mesh = mesh;
+
+    return true;
+}
+
+bool mesh_draw(vertex_layout layout, mesh mesh)
+{
+    glVertexArrayVertexBuffer(layout->layout, 0, mesh->vbuffer, 0, sizeof(vertex));
+    glVertexArrayElementBuffer(layout->layout, mesh->ibuffer);
+
+    glBindVertexArray(layout->layout);
+    glDrawElements(GL_TRIANGLES, (GLsizei)mesh->num_indices, GL_UNSIGNED_INT, 0);
+    glBindVertexArray(0);
+
+    return true;
+}
+
+void mesh_free(mesh mesh)
+{
+    glDeleteBuffers(1, &mesh->vbuffer);
+    glDeleteBuffers(1, &mesh->ibuffer);
+
+    free(mesh);
+}
 
 struct shader
 {

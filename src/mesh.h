@@ -2,7 +2,26 @@
 
 #include "tzl.h"
 
-typedef struct model *model;
+typedef struct vertex_layout *vertex_layout;
+
+bool vertex_layout_create(vertex_layout *out_layout);
+
+typedef struct vertex
+{
+    vec3 pos;
+} vertex;
+
+typedef struct mesh_src_data
+{
+    vertex *vertices;
+    u32 *indices;
+} mesh_src_data;
+
+typedef struct mesh *mesh;
+
+bool mesh_create(mesh_src_data asset, mesh *out_mesh);
+bool mesh_draw(vertex_layout layout, mesh mesh);
+void mesh_free(mesh mesh);
 
 typedef struct shader *shader;
 
