@@ -77,13 +77,17 @@ int main(int argc, char **argv)
     if (!vertex_layout_create(&standard_layout))
         return -1;
 
-    mesh_src_data triangle_src_data;
-    arrput(triangle_src_data.vertices, ((vertex){.pos = {-0.5f, -0.5f, 0.0f}}));
-    arrput(triangle_src_data.vertices, ((vertex){.pos = {-0.5f, 0.5f, 0.0f}}));
-    arrput(triangle_src_data.vertices, ((vertex){.pos = {0.5f, -0.5f, 0.0f}}));
+    mesh_src_data triangle_src_data = {0};
+    arrput(triangle_src_data.vertices, ((vertex){.pos = {-0.5f, -0.5f, 0.0f}, .col = {0.9f, 0.1f, 0.1f, 1.0f}}));
+    arrput(triangle_src_data.vertices, ((vertex){.pos = {-0.5f, 0.5f, 0.0f}, .col = {0.1f, 0.9f, 0.1f, 1.0f}}));
+    arrput(triangle_src_data.vertices, ((vertex){.pos = {0.5f, 0.5f, 0.0f}, .col = {0.1f, 0.1f, 0.9f, 1.0f}}));
+    arrput(triangle_src_data.vertices, ((vertex){.pos = {0.5f, -0.5f, 0.0f}, .col = {0.5f, 0.5f, 0.5f, 1.0f}}));
     arrput(triangle_src_data.indices, 0);
     arrput(triangle_src_data.indices, 1);
     arrput(triangle_src_data.indices, 2);
+    arrput(triangle_src_data.indices, 0);
+    arrput(triangle_src_data.indices, 2);
+    arrput(triangle_src_data.indices, 3);
 
     mesh triangle_mesh;
     if (!mesh_create(triangle_src_data, &triangle_mesh))
@@ -112,7 +116,9 @@ int main(int argc, char **argv)
         glClear(GL_COLOR_BUFFER_BIT);
         shader_use(assets_get_shader(assets, "shader"));
 
-        mesh_draw(standard_layout, triangle_mesh);
+        mesh *meshes = NULL;
+        arrput(meshes, triangle_mesh);
+        mesh_draw(standard_layout, meshes);
 
         RGFW_window_swapBuffers(win);
     }

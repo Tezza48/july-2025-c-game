@@ -9,6 +9,7 @@ bool vertex_layout_create(vertex_layout *out_layout);
 typedef struct vertex
 {
     vec3 pos;
+    vec4 col;
 } vertex;
 
 typedef struct mesh_src_data
@@ -20,7 +21,7 @@ typedef struct mesh_src_data
 typedef struct mesh *mesh;
 
 bool mesh_create(mesh_src_data asset, mesh *out_mesh);
-bool mesh_draw(vertex_layout layout, mesh mesh);
+bool mesh_draw(vertex_layout layout, mesh *meshes);
 void mesh_free(mesh mesh);
 
 typedef struct shader *shader;

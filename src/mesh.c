@@ -21,12 +21,15 @@ bool vertex_layout_create(vertex_layout *out_layout)
     glCreateVertexArrays(1, &layout->layout);
 
     glEnableVertexArrayAttrib(layout->layout, 0);
+    glEnableVertexArrayAttrib(layout->layout, 1);
     // ...
 
     glVertexArrayAttribFormat(layout->layout, 0, 3, GL_FLOAT, GL_FALSE, offsetof(vertex, pos));
+    glVertexArrayAttribFormat(layout->layout, 1, 4, GL_FLOAT, GL_TRUE, offsetof(vertex, col));
     // ...
 
     glVertexArrayAttribBinding(layout->layout, 0, 0);
+    glVertexArrayAttribBinding(layout->layout, 1, 0);
     // ...
 
     *out_layout = layout;
@@ -70,15 +73,20 @@ bool mesh_create(mesh_src_data asset, mesh *out_mesh)
     return true;
 }
 
-bool mesh_draw(vertex_layout layout, mesh mesh)
+bool mesh_draw(vertex_layout layout, mesh *meshes)
 {
-    glVertexArrayVertexBuffer(layout->layout, 0, mesh->vbuffer, 0, sizeof(vertex));
-    glVertexArrayElementBuffer(layout->layout, mesh->ibuffer);
-
     glBindVertexArray(layout->layout);
-    glDrawElements(GL_TRIANGLES, (GLsizei)mesh->num_indices, GL_UNSIGNED_INT, 0);
-    glBindVertexArray(0);
 
+    for (size i = 0; i < arrlen(meshes); i++)
+    {
+        mesh mesh = meshes[i];
+        glVertexArrayVertexBuffer(layout->layout, 0, mesh->vbuffer, 0, sizeof(vertex));
+        glVertexArrayElementBuffer(layout->layout, mesh->ibuffer);
+
+        glDrawElements(GL_TRIANGLES, (GLsizei)mesh->num_indices, GL_UNSIGNED_INT, 0);
+    }
+
+    glBindVertexArray(0);
     return true;
 }
 
