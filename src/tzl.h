@@ -11,8 +11,25 @@
 #define TZL_LOG_ERROR(msg, ...) fprintf(stderr, "TZL Error (%s:%d): " msg "\n", __FILE_NAME__, __LINE__, ##__VA_ARGS__)
 #endif
 
-// Convenient primitives
+// Timer functionality
+#pragma region Timer
+#include <time.h>
+typedef struct tzl_timer
+{
+    double app_total_seconds;
+    double last_seconds;
+    double curr_seconds;
+    double delta_seconds;
+    double delta_seconds_smoothed;
+} tzl_timer;
 
+tzl_timer tzl_timer_init();
+void tzl_timer_tick(tzl_timer *timer);
+
+#pragma endregion Timer
+
+// Convenient primitives
+#pragma region Primitives
 typedef size_t tzl_size;
 
 typedef int8_t tzl_i8;
@@ -36,6 +53,8 @@ typedef double tzl_f64;
 #define false 0
 #endif
 typedef bool tzl_bool;
+
+#pragma endregion Primitives
 
 /*
     Maths
@@ -452,7 +471,7 @@ static inline void tzl_vec3_create_rotation(tzl_vec3 axis, tzl_f32 angle, tzl_ma
     out[3][3] = 1.0f;
 }
 
-static inline void tzl_vec3_create_look_at(tzl_vec3 eye, tzl_vec3 target, tzl_vec3 up, tzl_mat4x4 out)
+static inline void tzl_mat4x4_look_at(tzl_vec3 eye, tzl_vec3 target, tzl_vec3 up, tzl_mat4x4 out)
 {
     tzl_vec3 forward, right, upn;
     tzl_vec3_sub(target, eye, forward);
@@ -490,7 +509,7 @@ static inline void tzl_vec3_create_look_at(tzl_vec3 eye, tzl_vec3 target, tzl_ve
 
     out[3][3] = 1.0f;
 }
-static inline void tzl_vec3_create_perspective(tzl_f32 fovy, tzl_f32 aspect, tzl_f32 nearz, tzl_f32 farz, tzl_mat4x4 out)
+static inline void tzl_mat4x4_perspective(tzl_f32 fovy, tzl_f32 aspect, tzl_f32 nearz, tzl_f32 farz, tzl_mat4x4 out)
 {
     tzl_f32 f = 1.0f / tanf(fovy / 2.0f);
     out[0][0] = f / aspect;
@@ -513,7 +532,7 @@ static inline void tzl_vec3_create_perspective(tzl_f32 fovy, tzl_f32 aspect, tzl
     out[3][2] = -1.0f;
     out[3][3] = 0.0f;
 }
-static inline void tzl_vec3_create_orthographic(tzl_f32 left, tzl_f32 right, tzl_f32 bottom, tzl_f32 top, tzl_f32 nearz, tzl_f32 farz, tzl_mat4x4 out)
+static inline void tzl_mat4x4_orthographic(tzl_f32 left, tzl_f32 right, tzl_f32 bottom, tzl_f32 top, tzl_f32 nearz, tzl_f32 farz, tzl_mat4x4 out)
 {
     out[0][0] = 2.0f / (right - left);
     out[0][1] = 0.0f;
@@ -626,14 +645,19 @@ typedef tzl_mat4x4 mat4x4;
 #define vec3_create_rotation_y tzl_vec3_create_rotation_y
 #define vec3_create_rotation_z tzl_vec3_create_rotation_z
 #define vec3_create_rotation tzl_vec3_create_rotation
-#define vec3_create_look_at tzl_vec3_create_look_at
-#define vec3_create_perspective tzl_vec3_create_perspective
-#define vec3_create_orthographic tzl_vec3_create_orthographic
+#define mat4x4_look_at tzl_mat4x4_look_at
+#define mat4x4_perspective tzl_mat4x4_perspective
+#define mat4x4_orthographic tzl_mat4x4_orthographic
 #define deg_to_radf tzl_deg_to_radf
 #define rad_to_degf tzl_rad_to_degf
 #define clampf tzl_clampf
 
 #define load_file tzl_load_file
+
+typedef tzl_timer timer;
+
+#define timer_init tzl_timer_init
+#define timer_tick tzl_timer_tick
 
 #endif
 
@@ -685,6 +709,26 @@ cleanup:
         fclose(f);
 
     return ok;
+}
+
+tzl_timer tzl_timer_init()
+{
+    return (tzl_timer){0};
+}
+
+void tzl_timer_tick(tzl_timer *timer)
+{
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    timer->last_seconds = timer->curr_seconds;
+    timer->curr_seconds = ts.tv_sec + ts.tv_nsec / 1e9;
+    // Default delta seconds to 0
+    timer->delta_seconds =
+        timer->last_seconds > 0.0f
+            ? timer->curr_seconds - timer->last_seconds
+            : 0.0f;
+    timer->app_total_seconds += timer->delta_seconds;
+    timer->delta_seconds_smoothed = (timer->delta_seconds_smoothed + timer->delta_seconds) / 2.0;
 }
 
 #endif

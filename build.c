@@ -8,7 +8,7 @@
 #include <sys/stat.h>
 
 #define STB_DS_IMPLEMENTATION
-#include "./vendor/stb_ds.h"
+#include "vendor/stb_ds.h"
 
 #define SRC_DIR "src"
 #define DIST_DIR "dist"
@@ -76,6 +76,8 @@ bool compile_program()
     APPEND_LIST(libs);
     APPEND(command, " -o %s", output);
 #undef APPEND_LIST
+
+    printf("Executing: (%s)\n", command);
 
     int ret = system(command);
     printf("Compiler exited with code %d\n", ret);

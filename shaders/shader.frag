@@ -1,4 +1,4 @@
-#version 330 core
+#version 430 core
 // Output a red for each fragment
 
 layout(location = 0) out vec4 oCol;
