@@ -168,6 +168,8 @@ int main(int argc, char **argv)
         glClearColor(0.9f, 0.9f, 0.9f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        glDisable(GL_CULL_FACE);
+
         mat4x4 mesh_model;
         vec3_create_translation((vec3){0.0f, 0.5f, 0.0f}, mesh_model);
 
@@ -184,6 +186,8 @@ int main(int argc, char **argv)
         mat4x4_identity(matrices.model_mat);
         shader_use(assets_get_shader(assets, "shader"), matrices);
         mesh_draw(standard_layout, &floor_mesh, 1);
+
+        glEnable(GL_CULL_FACE);
 
         RGFW_window_swapBuffers(win);
     }

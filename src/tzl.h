@@ -482,32 +482,32 @@ static inline void tzl_mat4x4_look_at(tzl_vec3 eye, tzl_vec3 target, tzl_vec3 up
 
     tzl_vec3_cross(right, forward, upn);
 
+    // Rotation part: columns are right, upn, -forward
     out[0][0] = right[0];
-    out[1][0] = right[1];
-    out[2][0] = right[2];
-    out[3][0] = 0.0f;
-
-    out[0][1] = upn[0];
+    out[0][1] = right[1];
+    out[0][2] = right[2];
+    out[0][3] = 0.0f;
+    out[1][0] = upn[0];
     out[1][1] = upn[1];
-    out[2][1] = upn[2];
-    out[3][1] = 0.0f;
-
-    out[0][2] = -forward[0];
-    out[1][2] = -forward[1];
+    out[1][2] = upn[2];
+    out[1][3] = 0.0f;
+    out[2][0] = -forward[0];
+    out[2][1] = -forward[1];
     out[2][2] = -forward[2];
+    out[2][3] = 0.0f;
+    out[3][0] = 0.0f;
+    out[3][1] = 0.0f;
     out[3][2] = 0.0f;
-
-    tzl_f32 temp_dot;
-    tzl_vec3_dot(right, eye, &temp_dot);
-    out[0][3] = -temp_dot;
-
-    tzl_vec3_dot(upn, eye, &temp_dot);
-    out[1][3] = -temp_dot;
-
-    tzl_vec3_dot(forward, eye, &temp_dot);
-    out[2][3] = temp_dot;
-
     out[3][3] = 1.0f;
+
+    // Translation part in the last row of each column
+    tzl_f32 temp;
+    tzl_vec3_dot(right, eye, &temp);
+    out[0][3] = -temp;
+    tzl_vec3_dot(upn, eye, &temp);
+    out[1][3] = -temp;
+    tzl_vec3_dot(forward, eye, &temp);
+    out[2][3] = temp;
 }
 static inline void tzl_mat4x4_perspective(tzl_f32 fovy, tzl_f32 aspect, tzl_f32 nearz, tzl_f32 farz, tzl_mat4x4 out)
 {
