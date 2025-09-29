@@ -12,6 +12,7 @@
         "stdfloat": "cpp",
         "tzl.h": "c",
         "stdbool.h": "c",
-        "stb_ds.h": "c"
+        "stb_ds.h": "c",
+        "typeinfo": "c"
     }
 }

@@ -49,14 +49,17 @@ void *assets_get(assets assets, const char *name)
 
 void assets_free(assets assets)
 {
-    for (int i = 0; i < hmlen(assets->data); i++)
+    if (assets->data != NULL)
     {
-        if (assets->data[i].dtor != NULL)
+        for (int i = 0; i < hmlen(assets->data); i++)
         {
-            assets->data[i].dtor(assets->data[i].value);
+            if (assets->data[i].dtor != NULL)
+            {
+                assets->data[i].dtor(assets->data[i].value);
+            }
         }
+        hmfree(assets->data);
     }
 
-    hmfree(assets->data);
     free(assets);
 }

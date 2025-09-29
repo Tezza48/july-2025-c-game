@@ -66,16 +66,7 @@ cleanup:
     return ok;
 }
 
-void shader_use(shader mat, global_matrix_block matrices)
-{
-    glUseProgram(mat->program);
-
-    glUniformMatrix4fv(0, 1, GL_FALSE, (GLfloat *)matrices.model_mat);
-    glUniformMatrix4fv(1, 1, GL_FALSE, (GLfloat *)matrices.view_mat);
-    glUniformMatrix4fv(2, 1, GL_FALSE, (GLfloat *)matrices.proj_mat);
-}
-
-tzl_bool _shader_init_src(shader shader, const char *vert_src, const char *frag_src)
+tzl_bool _shader_init_src(shader_p shader, const char *vert_src, const char *frag_src)
 {
     GLuint program = 0;
     GLuint vertShader = 0;
@@ -152,73 +143,51 @@ cleanup:
     return ok;
 }
 
-tzl_bool shader_load_src(const char *vert_src, const char *frag_src, shader *out_shader)
-{
-    bool ok = false;
-
-    // Allocate shader
-    shader shader = calloc(1, sizeof(*shader));
-    if (!shader)
-    {
-        TZL_LOG_ERROR("Could not allocate memory for material");
-        goto cleanup;
-    }
-
-    if (!_shader_init_src(shader, vert_src, frag_src))
-    {
-        goto cleanup;
-    }
-
-    *out_shader = shader;
-    ok = true;
-
-cleanup:
-    if (!ok)
-    {
-        if (shader)
-        {
-            free(shader);
-        }
-    }
-
-    return ok;
-}
-
-void _shader_cleanup(shader shader)
+void _shader_cleanup(shader_p shader)
 {
     glDeleteProgram(shader->program);
 }
 
-void shader_free(shader shader)
+shader_storage shader_storage_init()
 {
-    _shader_cleanup(shader);
-    free(shader);
+    return (shader_storage){0};
 }
 
-// Asset system integration
-static inline void _shader_free_asset(void *s)
+void shader_storage_cleanup(shader_storage *storage)
 {
-    shader_free((shader)s);
-}
-
-bool assets_load_shader(assets assets, const char *name, const char *vert_src, const char *frag_src, shader *out_shader)
-{
-    bool ok = false;
-
-    shader s;
-    if (!shader_load_src(vert_src, frag_src, &s))
+    for (size i = 0; i < arrlen(storage->data); i++)
     {
-        TZL_LOG_ERROR("Failed to load shader src");
-        goto cleanup;
+        _shader_cleanup(&storage->data[i]);
+    }
+    arrfree(storage->data);
+}
+
+shader_id shader_load_src(shader_storage *storage, const char *vert_src, const char *frag_src)
+{
+    struct _shader_t new_shader;
+    if (!_shader_init_src(&new_shader, vert_src, frag_src))
+    {
+        TZL_LOG_ERROR("Failed to initialize new shader");
+        exit(tzl_exit_code_load_error);
     }
 
-    assets_add(assets, name, s, _shader_free_asset);
+    shader_id new_id = arrlen(storage->data);
+    arrput(storage->data, new_shader);
 
-    if (out_shader)
-        *out_shader = s;
+    return new_id;
+}
 
-    ok = true;
+void shader_update_resources(global_matrix_block matrices)
+{
+    glUniformMatrix4fv(0, 1, GL_FALSE, (GLfloat *)matrices.model_mat);
+    glUniformMatrix4fv(1, 1, GL_FALSE, (GLfloat *)matrices.view_mat);
+    glUniformMatrix4fv(2, 1, GL_FALSE, (GLfloat *)matrices.proj_mat);
+}
 
-cleanup:
-    return ok;
+void shader_use(shader_storage *storage, shader_id shader, global_matrix_block matrices)
+{
+    shader_p s = &storage->data[shader];
+    glUseProgram(s->program);
+
+    shader_update_resources(matrices);
 }

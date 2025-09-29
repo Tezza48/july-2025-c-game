@@ -8,17 +8,19 @@ typedef struct global_matrix_block
     mat4x4 proj_mat;
 } global_matrix_block;
 
-typedef struct _shader_t *shader;
+typedef size shader_id;
+typedef struct _shader_t *shader_array;
+typedef struct _shader_t *shader_p;
 
-void shader_update_resources(shader shader, global_matrix_block matrices);
-
-void shader_use(shader mat, global_matrix_block matrices);
-tzl_bool shader_load_src(const char *vert_src, const char *frag_src, shader *out_shader);
-void shader_free(shader shader);
-
-#include "asset.h"
-bool assets_load_shader(assets assets, const char *name, const char *vert_src, const char *frag_src, shader *out_shader);
-static inline shader assets_get_shader(assets assets, const char *name)
+typedef struct shader_storage
 {
-    return (shader)assets_get(assets, name);
-}
+    /// @brief Dynamic array (stb_ds) of shaders
+    shader_array data;
+} shader_storage;
+
+shader_storage shader_storage_init();
+void shader_storage_cleanup(shader_storage *storage);
+shader_id shader_load_src(shader_storage *storage, const char *vert_src, const char *frag_src);
+
+void shader_update_resources(global_matrix_block matrices);
+void shader_use(shader_storage *storage, shader_id shader, global_matrix_block matrices);

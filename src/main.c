@@ -80,8 +80,6 @@ int main(int argc, char **argv)
     RGFW_windowFlags flags = 0;
     flags |= RGFW_windowCenter;
 
-    // event_callback *events;
-
     RGFW_window *win = RGFW_createWindow("name", RGFW_RECT(100, 100, 500, 500), (uint64_t)0);
     if (!win)
         return -1;
@@ -121,8 +119,8 @@ int main(int argc, char **argv)
     if (!mesh_primitive_quad_y(3.0f, (vec4){.2f, 0.2f, 0.2f, 1.0f}, &floor_mesh))
         return -1;
 
-    if (!assets_load_shader(assets, "shader", "shader.vert", "shader.frag", NULL))
-        return -1;
+    shader_storage shaders = shader_storage_init();
+    shader_id global_shader = shader_load_src(&shaders, "shader.vert", "shader.frag");
 
     camera cam;
     camera_init(&cam, deg_to_radf(60.0f), (float)win->r.h / win->r.w, 0.01f, 1000.0f);
@@ -179,18 +177,20 @@ int main(int argc, char **argv)
         memcpy(matrices.proj_mat, cam.proj, sizeof(mat4x4));
 
         // Not ideal that id be grabbing shader from the cache per pass, id grab it once
-        shader_use(assets_get_shader(assets, "shader"), matrices);
+        shader_use(&shaders, global_shader, matrices);
 
         mesh_draw(standard_layout, &triangle_mesh, 1);
 
         mat4x4_identity(matrices.model_mat);
-        shader_use(assets_get_shader(assets, "shader"), matrices);
+        shader_update_resources(matrices);
         mesh_draw(standard_layout, &floor_mesh, 1);
 
         glEnable(GL_CULL_FACE);
 
         RGFW_window_swapBuffers(win);
     }
+
+    shader_storage_cleanup(&shaders);
 
     assets_free(assets);
 

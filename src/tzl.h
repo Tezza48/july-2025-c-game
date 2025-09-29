@@ -5,11 +5,24 @@
 #include <stdbool.h>
 
 // Error logging
+#pragma region ErrorLogging
 #ifndef TZL_NO_ERROR
 #include <stdio.h>
 /// Log an error to stderr
 #define TZL_LOG_ERROR(msg, ...) fprintf(stderr, "TZL Error (%s:%d): " msg "\n", __FILE_NAME__, __LINE__, ##__VA_ARGS__)
 #endif
+#pragma endregion ErrorLogging
+
+#pragma region ErrorCodes
+
+enum tzl_exit_code
+{
+    tzl_exit_code_unknown_error = -1,
+    tzl_exit_code_ok = 0,
+    tzl_exit_code_load_error
+};
+
+#pragma endregion ErrorCodes
 
 // Timer functionality
 #pragma region Timer
@@ -70,6 +83,7 @@ typedef bool tzl_bool;
 
 
 */
+#pragma region Maths
 #include <math.h>
 
 #define TZL_PI 3.141592653589793
@@ -566,10 +580,12 @@ static inline tzl_f32 tzl_clampf(tzl_f32 value, tzl_f32 min, tzl_f32 max)
         return max;
     return value;
 }
+#pragma endregion Maths
 
 // File IO
-
+#pragma region FileIo
 tzl_bool tzl_load_file(const char *path, char **buff, tzl_size *buffLen);
+#pragma endregion FileIo
 
 #if !defined(TZL_NO_SHORT_NAMES)
 
