@@ -18,11 +18,22 @@ typedef struct mesh_src_data
     u32 *indices;
 } mesh_src_data;
 
-typedef struct mesh *mesh;
+typedef size mesh_id;
+typedef struct _mesh_t *mesh;
+typedef struct _mesh_t *mesh_array;
 
-bool mesh_create(mesh_src_data asset, mesh *out_mesh);
+typedef struct mesh_storage
+{
+    mesh_array data;
+    mesh_id *free_ids;
+} mesh_storage;
 
-bool mesh_primitive_quad_y(float radius, vec4 color, mesh *out_mesh);
+mesh_storage mesh_storage_init();
+void mesh_storage_cleanup(mesh_storage *storage);
 
-bool mesh_draw(vertex_layout layout, mesh *meshes, size num_meshes);
-void mesh_free(mesh mesh);
+mesh_id mesh_create(mesh_storage *storage, mesh_src_data asset);
+mesh_id mesh_create_primitive_quad_y(mesh_storage *storage, f32 radius, vec4 color);
+
+bool mesh_draw(mesh_storage *storage, vertex_layout layout, mesh_id *meshes, size num_meshes);
+
+void mesh_cleanup(mesh_storage *storage, mesh_id mesh);

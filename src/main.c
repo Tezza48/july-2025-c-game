@@ -34,25 +34,6 @@ typedef struct camera
     float farz;
 } camera;
 
-// typedef enum event_type
-// {
-//     event_resize,
-// } event_type;
-
-// typedef void (*event_callback)(event_type event_type, void *context, void *data);
-// typedef struct event
-// {
-//     event_callback callback;
-//     void *context
-// } event;
-// void event_notify(event *events, event_type event_type, void *data)
-// {
-//     for (size i = 0; i < arrlen(events); i++)
-//     {
-//         events[i].callback(event_type, events[i].context, data);
-//     }
-// }
-
 void camera_init(camera *cam, f32 fovy, f32 aspect, f32 nearz, f32 farz)
 {
     mat4x4_perspective(fovy, aspect, nearz, farz, cam->proj);
@@ -64,15 +45,28 @@ void camera_init(camera *cam, f32 fovy, f32 aspect, f32 nearz, f32 farz)
     cam->farz = farz;
 }
 
+void camera_resize(camera *cam, f32 aspect)
+{
+    cam->aspect = aspect;
+
+    mat4x4_perspective(cam->fovy, cam->aspect, cam->nearz, cam->farz, cam->proj);
+}
+
 void camera_look_at(camera *cam, vec3 eye, vec3 target, vec3 up)
 {
     mat4x4_identity(cam->view);
     mat4x4_look_at(eye, target, up, cam->view);
 }
 
-// void camera_set_view(camera *cam, vec3 pos, vec4 orientation_quat)
-// {
-// }
+typedef struct entity
+{
+    vec3 pos;
+    mat4x4 rot;
+    // entity_id parent;
+    mesh_id mesh;
+} entity;
+
+typedef size entity_id;
 
 int main(int argc, char **argv)
 {
@@ -111,15 +105,13 @@ int main(int argc, char **argv)
     arrput(triangle_src_data.indices, 2);
     arrput(triangle_src_data.indices, 3);
 
-    mesh triangle_mesh;
-    if (!mesh_create(triangle_src_data, &triangle_mesh))
-        return -1;
-
-    mesh floor_mesh;
-    if (!mesh_primitive_quad_y(3.0f, (vec4){.2f, 0.2f, 0.2f, 1.0f}, &floor_mesh))
-        return -1;
-
     shader_storage shaders = shader_storage_init();
+    mesh_storage meshes = mesh_storage_init();
+
+    mesh_id triangle_mesh = mesh_create(&meshes, triangle_src_data);
+
+    mesh_id floor_mesh = mesh_create_primitive_quad_y(&meshes, 3.0f, (vec4){.2f, 0.2f, 0.2f, 1.0f});
+
     shader_id global_shader = shader_load_src(&shaders, "shader.vert", "shader.frag");
 
     camera cam;
@@ -141,6 +133,7 @@ int main(int argc, char **argv)
             if (win->event.type == RGFW_windowResized)
             {
                 glViewport(0, 0, win->r.w, win->r.h);
+                camera_resize(&cam, (f32)win->r.w / win->r.h);
             }
         }
 
@@ -179,11 +172,11 @@ int main(int argc, char **argv)
         // Not ideal that id be grabbing shader from the cache per pass, id grab it once
         shader_use(&shaders, global_shader, matrices);
 
-        mesh_draw(standard_layout, &triangle_mesh, 1);
+        mesh_draw(&meshes, standard_layout, &triangle_mesh, 1);
 
         mat4x4_identity(matrices.model_mat);
         shader_update_resources(matrices);
-        mesh_draw(standard_layout, &floor_mesh, 1);
+        mesh_draw(&meshes, standard_layout, &floor_mesh, 1);
 
         glEnable(GL_CULL_FACE);
 
@@ -191,6 +184,7 @@ int main(int argc, char **argv)
     }
 
     shader_storage_cleanup(&shaders);
+    mesh_storage_cleanup(&meshes);
 
     assets_free(assets);
 
