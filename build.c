@@ -11,6 +11,7 @@
 #include "vendor/stb_ds.h"
 
 #define SRC_DIR "src"
+#define INTERMEDIATE_DIR "out"
 #define DIST_DIR "dist"
 
 #define ERROR(msg)                                   \

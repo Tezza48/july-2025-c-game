@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+#include <string.h>
+
 // Error logging
 #pragma region ErrorLogging
 #ifndef TZL_NO_ERROR
@@ -19,7 +21,8 @@ enum tzl_exit_code
 {
     tzl_exit_code_unknown_error = -1,
     tzl_exit_code_ok = 0,
-    tzl_exit_code_load_error
+    tzl_exit_code_fopen_error,
+    tzl_exit_code_fwrite_error,
 };
 
 #pragma endregion ErrorCodes
@@ -352,17 +355,20 @@ static inline void tzl_mat4x4_zero(tzl_mat4x4 m)
 }
 static inline void tzl_mat4x4_mul(tzl_mat4x4 lhs, tzl_mat4x4 rhs, tzl_mat4x4 out)
 {
+    tzl_mat4x4 temp;
     for (int i = 0; i < 4; ++i)
     {
         for (int j = 0; j < 4; ++j)
         {
-            out[i][j] = 0.0f;
+            temp[i][j] = 0.0f;
             for (int k = 0; k < 4; ++k)
             {
-                out[i][j] += lhs[i][k] * rhs[k][j];
+                temp[i][j] += lhs[i][k] * rhs[k][j];
             }
         }
     }
+
+    memcpy(out, temp, sizeof(tzl_mat4x4));
 }
 static inline void tzl_mat4x4_mul_vec4(tzl_mat4x4 m, tzl_vec4 v, tzl_vec4 out)
 {

@@ -168,7 +168,7 @@ shader_id shader_load_src(shader_storage *storage, const char *vert_src, const c
     if (!_shader_init_src(&new_shader, vert_src, frag_src))
     {
         TZL_LOG_ERROR("Failed to initialize new shader");
-        exit(tzl_exit_code_load_error);
+        exit(tzl_exit_code_fopen_error);
     }
 
     shader_id new_id = arrlen(storage->data);

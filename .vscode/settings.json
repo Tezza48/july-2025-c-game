@@ -13,6 +13,8 @@
         "tzl.h": "c",
         "stdbool.h": "c",
         "stb_ds.h": "c",
-        "typeinfo": "c"
+        "typeinfo": "c",
+        "compare": "c",
+        "type_traits": "c"
     }
 }
