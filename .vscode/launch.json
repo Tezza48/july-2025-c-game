@@ -20,6 +20,6 @@
                 }
             ],
             "preLaunchTask": "Build Game",
-        }
+        },
     ]
 }

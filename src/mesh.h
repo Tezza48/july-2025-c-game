@@ -5,6 +5,7 @@
 typedef struct vertex_layout *vertex_layout;
 
 bool vertex_layout_create(vertex_layout *out_layout);
+void vertex_layout_free(vertex_layout layout);
 
 typedef struct vertex
 {

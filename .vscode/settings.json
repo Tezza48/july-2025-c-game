@@ -15,6 +15,10 @@
         "stb_ds.h": "c",
         "typeinfo": "c",
         "compare": "c",
-        "type_traits": "c"
+        "type_traits": "c",
+        "component.h": "c",
+        "shader.h": "c",
+        "app.h": "c",
+        "unistd.h": "c"
     }
 }
