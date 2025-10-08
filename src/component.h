@@ -1,5 +1,7 @@
 #pragma once
 #include "tzl.h"
+#include "shader.h"
+#include "mesh.h"
 
 typedef size entity_id;
 

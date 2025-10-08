@@ -7,7 +7,7 @@ SHADERS_DIR := shaders
 
 # Compiler and flags
 CC := gcc
-CFLAGS := -Wall -O0 -g -I$(INCLUDE_DIR)
+CFLAGS := -w -O0 -g -I$(INCLUDE_DIR)
 LDFLAGS := -lopengl32 -lgdi32
 TARGET := $(DIST_DIR)/game.exe
 
@@ -24,9 +24,13 @@ dist:
 	if not exist $(DIST_DIR) mkdir $(DIST_DIR)
 
 # Copy shader files
-copy_shaders: dist
-	@cp -u $(SHADERS_DIR)/*.vert $(DIST_DIR)/ 2>/dev/null || true
-	@cp -u $(SHADERS_DIR)/*.frag $(DIST_DIR)/ 2>/dev/null || true
+SHADERS := $(wildcard $(SHADERS_DIR)/*.vert $(SHADERS_DIR)/*.frag)
+COPIED  := $(patsubst $(SHADERS_DIR)/%, $(DIST_DIR)/%, $(SHADERS))
+
+$(DIST_DIR)/%.vert $(DIST_DIR)/%.frag: $(SHADERS_DIR)/% | $(DIST_DIR)
+	@cp $< $@
+
+copy_shaders: $(COPIED)
 
 # Build executable
 $(TARGET): $(OBJ) | dist
