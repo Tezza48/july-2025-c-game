@@ -129,12 +129,37 @@ app app_init(RGFW_window *win)
 {
 
     app app = {0};
-    app.win = win,
+    app.win = win;
 
     app.shaders = shader_storage_init();
     app.meshes = mesh_storage_init();
+    app.textures = (texture_storage){0}; // lazy but the idea is that its gonna zero out anyway
 
     app.global_shader = shader_load_src(&app.shaders, "shader.vert", "shader.frag");
+
+    char *ranks[13] = {
+        "A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"};
+
+    char *suits[4] = {
+        "Clubs", "Hearts", "Spades", "Diamonds"};
+
+    char *format = "assets/kenney_boardgame/Cards/card%s%s.png";
+    size numRanks = sizeof(ranks) / sizeof(ranks[0]);
+    size numSuits = sizeof(suits) / sizeof(suits[0]);
+    for (size s = 0; s < numSuits; s++)
+    {
+        char *suit = suits[s];
+        for (size r = 0; r < numRanks; r++)
+        {
+            char *rank = ranks[r];
+            char asset_path[1024];
+            snprintf(asset_path, sizeof(asset_path), format, suit, rank);
+
+            texture_id t = texture_load_file(&app.textures, asset_path);
+
+            hmput(app.card_textures, asset_path, t);
+        }
+    }
 
     return app;
 }
@@ -209,6 +234,7 @@ void app_cleanup(app *app)
 {
     vertex_layout_free(app->standard_layout);
 
+    texture_storage_cleanup(&app->textures);
     shader_storage_cleanup(&app->shaders);
     mesh_storage_cleanup(&app->meshes);
 }

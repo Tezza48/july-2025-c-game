@@ -7,6 +7,7 @@
 
 #include "mesh.h"
 #include "shader.h"
+#include "texture.h"
 
 typedef struct camera
 {
@@ -30,6 +31,7 @@ typedef struct app
 
     mesh_storage meshes;
     shader_storage shaders;
+    texture_storage textures;
 
     entity_id next_entity;
     transform *transform_map;
@@ -42,6 +44,12 @@ typedef struct app
 
     camera cam;
     f32 cam_angle;
+
+    struct card_texture_map
+    {
+        char *key; // "<card_rank>_<card_suit>" OR "back_<color>"
+        texture_id value;
+    } *card_textures;
 } app;
 
 app app_init(RGFW_window *win);
