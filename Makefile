@@ -1,63 +1,56 @@
-# Directories
-SRC_DIR := src
-VENDOR_DIR := vendor
-INCLUDE_DIR := include
-DIST_DIR := dist
-SHADERS_DIR := shaders
+# --- Project Config ---
+PROJECT := game
+SRC_DIR    := src
 ASSETS_DIR := assets
+BUILD_DIR  := build
+BIN_DIR    := dist
 
-# Compiler and flags
-CC := gcc
-CFLAGS := -w -O0 -g -I$(INCLUDE_DIR)
-LDFLAGS := -lopengl32 -lgdi32
-TARGET := $(DIST_DIR)/game.exe
+CC         := gcc
+CFLAGS     := -w -Wextra -I$(SRC_DIR) -Isrc/vendor -Iinclude -g
+LDFLAGS    := -lm -lopengl32 -lgdi32
 
-# Source and object files
-SRC := $(wildcard $(SRC_DIR)/*.c) $(wildcard $(VENDOR_DIR)/*.c)
-OBJ := $(patsubst %.c, %.o, $(SRC))
+# --- Cross-platform mkdir/copy ---
+ifeq ($(OS),Windows_NT)
+    MKDIR = if not exist "$(1)" mkdir "$(1)"
+    COPY  = xcopy /E /Y /I "$(1)" "$(2)" >nul
+else
+    MKDIR = mkdir -p "$(1)"
+    COPY  = cp -ru "$(1)" "$(2)"
+endif
 
-.PHONY: all clean dist copy_shaders copy_assets
+# --- Sources ---
+SRC_FILES  := $(wildcard $(SRC_DIR)/*.c) \
+              $(wildcard $(SRC_DIR)/vendor/*.c)
+OBJ_FILES  := $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(SRC_FILES))
+TARGET     := $(BIN_DIR)/$(PROJECT)
 
-all: $(TARGET) copy_shaders copy_assets
+ifeq ($(OS),Windows_NT)
+TARGET := $(TARGET).exe
+endif
 
-# Ensure dist directory exists (cross-platform)
-dist:
-	@mkdir -p "$(DIST_DIR)" 2>/dev/null || if not exist "$(DIST_DIR)" mkdir "$(DIST_DIR)"
+# --- Rules ---
+all: $(TARGET) copy_assets
 
-# --- Shaders ---
-SHADERS := $(wildcard $(SHADERS_DIR)/*.vert $(SHADERS_DIR)/*.frag)
-COPIED  := $(patsubst $(SHADERS_DIR)/%, $(DIST_DIR)/%, $(SHADERS))
+$(TARGET): $(OBJ_FILES) | $(BIN_DIR)
+	$(CC) $(OBJ_FILES) -o $@ $(LDFLAGS)
 
-$(DIST_DIR)/%.vert: $(SHADERS_DIR)/%.vert | $(DIST_DIR)
-	@cp $< $@
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c | $(BUILD_DIR)
+	$(call MKDIR,$(dir $@))
+	$(CC) $(CFLAGS) -c $< -o $@
 
-$(DIST_DIR)/%.frag: $(SHADERS_DIR)/%.frag | $(DIST_DIR)
-	@cp $< $@
+copy_assets: | $(BIN_DIR)
+	@echo Copying assets...
+	$(call COPY,$(ASSETS_DIR)\*,$(BIN_DIR))
 
-copy_shaders: $(COPIED)
+$(BIN_DIR) $(BUILD_DIR):
+	$(call MKDIR,$@)
 
-# --- Assets ---
-ASSETS_SRC := $(shell dir /B /S $(ASSETS_DIR) 2>NUL)
-ASSETS_DST := $(patsubst $(ASSETS_DIR)/%, $(DIST_DIR)/assets/%, $(ASSETS_SRC))
-
-$(DIST_DIR)/assets/%: $(ASSETS_DIR)/% | dist/assets
-	@mkdir -p "$(dir $@)" 2>/dev/null || if not exist "$(dir $@)" mkdir "$(dir $@)"
-	@cp "$<" "$@" 2>/dev/null || copy /Y "$<" "$@"
-
-dist/assets:
-	@mkdir -p "$@" 2>/dev/null || if not exist "$@" mkdir "$@"
-
-copy_assets: $(ASSETS_DST)
-
-# --- Build executable ---
-$(TARGET): $(OBJ) | dist
-	$(CC) $(OBJ) $(LDFLAGS) -o "$@"
-
-# --- Compile source files ---
-%.o: %.c
-	$(CC) $(CFLAGS) -c "$<" -o "$@"
-
-# --- Clean ---
 clean:
-	@rm -f $(SRC_DIR)/*.o $(VENDOR_DIR)/*.o $(TARGET) 2>/dev/null || del /Q $(SRC_DIR)\*.o $(VENDOR_DIR)\*.o "$(TARGET)" 2>nul
-	@rm -f $(DIST_DIR)/*.vert $(DIST_DIR)/*.frag 2>/dev/null || del /Q $(DIST_DIR)\*.vert $(DIST_DIR)\*.frag 2>nul
+	@if exist "$(BUILD_DIR)" rmdir /S /Q "$(BUILD_DIR)"
+	@if exist "$(BIN_DIR)" rmdir /S /Q "$(BIN_DIR)"
+	@if not exist "$(BUILD_DIR)" if not exist "$(BIN_DIR)" echo Cleaned.
+
+run: all
+	$(TARGET)
+
+.PHONY: all clean run copy_assets

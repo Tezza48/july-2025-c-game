@@ -1,9 +1,9 @@
 #include "app.h"
 
 #include <stdlib.h>
-#include "GL/gl.h"
+#include <glad/glad.h>
 
-#include "../vendor/stb_ds.h"
+#include "vendor/stb_ds.h"
 
 entity_id archtype_model(app *app, transform t, model m)
 {
@@ -56,6 +56,10 @@ void sys_render_models(app *app)
         memcpy(matrices.model_mat, world, sizeof(mat4x4));
         shader_use(&app->shaders, item->m.shader, matrices);
 
+        glActiveTexture(GL_TEXTURE0);
+        texture_id tex = hmget(app->card_textures, "A_Spades");
+        glBindTexture(GL_TEXTURE_2D, texture_get_gl_texture(&app->textures, tex));
+
         mesh_draw(&app->meshes, app->standard_layout, &item->m.mesh, 1);
     }
 }
@@ -65,10 +69,10 @@ void sys_render_models(app *app)
 mesh_id create_test_quad(mesh_storage *storage)
 {
     mesh_src_data triangle_src_data = {0};
-    arrput(triangle_src_data.vertices, ((vertex){.pos = {-0.5f, -0.5f, 0.0f}, .col = {0.9f, 0.1f, 0.1f, 1.0f}}));
-    arrput(triangle_src_data.vertices, ((vertex){.pos = {-0.5f, 0.5f, 0.0f}, .col = {0.1f, 0.9f, 0.1f, 1.0f}}));
-    arrput(triangle_src_data.vertices, ((vertex){.pos = {0.5f, 0.5f, 0.0f}, .col = {0.1f, 0.1f, 0.9f, 1.0f}}));
-    arrput(triangle_src_data.vertices, ((vertex){.pos = {0.5f, -0.5f, 0.0f}, .col = {0.5f, 0.5f, 0.5f, 1.0f}}));
+    arrput(triangle_src_data.vertices, ((vertex){.pos = {-0.5f, -0.5f, 0.0f}, .col = {0.9f, 0.1f, 0.1f, 1.0f}, .uv = {0.0f, 0.0f}}));
+    arrput(triangle_src_data.vertices, ((vertex){.pos = {-0.5f, 0.5f, 0.0f}, .col = {0.1f, 0.9f, 0.1f, 1.0f}, .uv = {0.0f, 1.0f}}));
+    arrput(triangle_src_data.vertices, ((vertex){.pos = {0.5f, 0.5f, 0.0f}, .col = {0.1f, 0.1f, 0.9f, 1.0f}, .uv = {1.0f, 1.0f}}));
+    arrput(triangle_src_data.vertices, ((vertex){.pos = {0.5f, -0.5f, 0.0f}, .col = {0.5f, 0.5f, 0.5f, 1.0f}, .uv = {1.0f, 0.0f}}));
     arrput(triangle_src_data.indices, 0);
     arrput(triangle_src_data.indices, 1);
     arrput(triangle_src_data.indices, 2);
@@ -127,7 +131,6 @@ void camera_look_at(camera *cam, vec3 eye, vec3 target, vec3 up)
 
 app app_init(RGFW_window *win)
 {
-
     app app = {0};
     app.win = win;
 
@@ -135,7 +138,7 @@ app app_init(RGFW_window *win)
     app.meshes = mesh_storage_init();
     app.textures = (texture_storage){0}; // lazy but the idea is that its gonna zero out anyway
 
-    app.global_shader = shader_load_src(&app.shaders, "shader.vert", "shader.frag");
+    app.global_shader = shader_load_src(&app.shaders, "shaders/shader.vert", "shaders/shader.frag");
 
     char *ranks[13] = {
         "A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"};
@@ -143,7 +146,7 @@ app app_init(RGFW_window *win)
     char *suits[4] = {
         "Clubs", "Hearts", "Spades", "Diamonds"};
 
-    char *format = "assets/kenney_boardgame/Cards/card%s%s.png";
+    char *format = "kenney_boardgame/Cards/card%s%s.png";
     size numRanks = sizeof(ranks) / sizeof(ranks[0]);
     size numSuits = sizeof(suits) / sizeof(suits[0]);
     for (size s = 0; s < numSuits; s++)

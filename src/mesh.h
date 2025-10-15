@@ -11,6 +11,7 @@ typedef struct vertex
 {
     vec3 pos;
     vec4 col;
+    vec2 uv;
 } vertex;
 
 typedef struct mesh_src_data

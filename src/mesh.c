@@ -1,7 +1,7 @@
 #include "mesh.h"
 #include <glad/glad.h>
 
-#include "../vendor/stb_ds.h"
+#include "vendor/stb_ds.h"
 
 typedef struct _mesh_t
 {
@@ -28,14 +28,17 @@ bool vertex_layout_create(vertex_layout *out_layout)
 
     glEnableVertexArrayAttrib(layout->layout, 0);
     glEnableVertexArrayAttrib(layout->layout, 1);
+    glEnableVertexArrayAttrib(layout->layout, 2);
     // ...
 
     glVertexArrayAttribFormat(layout->layout, 0, 3, GL_FLOAT, GL_FALSE, offsetof(vertex, pos));
     glVertexArrayAttribFormat(layout->layout, 1, 4, GL_FLOAT, GL_TRUE, offsetof(vertex, col));
+    glVertexArrayAttribFormat(layout->layout, 2, 2, GL_FLOAT, GL_TRUE, offsetof(vertex, uv));
     // ...
 
     glVertexArrayAttribBinding(layout->layout, 0, 0);
     glVertexArrayAttribBinding(layout->layout, 1, 0);
+    glVertexArrayAttribBinding(layout->layout, 2, 0);
     // ...
 
     *out_layout = layout;
@@ -118,10 +121,10 @@ bool mesh_draw(mesh_storage *storage, vertex_layout layout, mesh_id *mesh_ids, s
 mesh_id mesh_create_primitive_quad_y(mesh_storage *storage, f32 radius, vec4 color)
 {
     mesh_src_data data = {0};
-    arrput(data.vertices, ((vertex){.pos = {-radius, 0.0f, -radius}, .col = {color[0], color[1], color[2], color[3]}}));
-    arrput(data.vertices, ((vertex){.pos = {-radius, 0.0f, radius}, .col = {color[0], color[1], color[2], color[3]}}));
-    arrput(data.vertices, ((vertex){.pos = {radius, 0.0f, radius}, .col = {color[0], color[1], color[2], color[3]}}));
-    arrput(data.vertices, ((vertex){.pos = {radius, 0.0f, -radius}, .col = {color[0], color[1], color[2], color[3]}}));
+    arrput(data.vertices, ((vertex){.pos = {-radius, 0.0f, -radius}, .col = {color[0], color[1], color[2], color[3]}, .uv = {0.0f, 0.0f}}));
+    arrput(data.vertices, ((vertex){.pos = {-radius, 0.0f, radius}, .col = {color[0], color[1], color[2], color[3]}, .uv = {0.0f, 1.0f}}));
+    arrput(data.vertices, ((vertex){.pos = {radius, 0.0f, radius}, .col = {color[0], color[1], color[2], color[3]}, .uv = {1.0f, 1.0f}}));
+    arrput(data.vertices, ((vertex){.pos = {radius, 0.0f, -radius}, .col = {color[0], color[1], color[2], color[3]}, .uv = {1.0f, 0.0f}}));
 
     arrput(data.indices, 0);
     arrput(data.indices, 1);

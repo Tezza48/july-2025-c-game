@@ -13,3 +13,6 @@ typedef struct texture_storage
 texture_storage texture_storage_init();
 void texture_storage_cleanup(texture_storage *storage);
 texture_id texture_load_file(texture_storage *storage, const char *filename);
+
+#include <glad/glad.h>
+GLuint texture_get_gl_texture(texture_storage *storage, texture_id id);

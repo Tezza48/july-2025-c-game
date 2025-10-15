@@ -1,6 +1,6 @@
 #include "shader.h"
 #include <glad/glad.h>
-#include "../vendor/stb_ds.h"
+#include "vendor/stb_ds.h"
 
 struct _shader_t
 {

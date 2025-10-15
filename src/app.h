@@ -1,7 +1,7 @@
 #pragma once
 #include "tzl.h"
 
-#include "../vendor/RGFW.h"
+#include "vendor/RGFW.h"
 
 #include "component.h"
 
@@ -45,9 +45,10 @@ typedef struct app
     camera cam;
     f32 cam_angle;
 
+    // "<card_rank>_<card_suit>" OR "back_<color>"
     struct card_texture_map
     {
-        char *key; // "<card_rank>_<card_suit>" OR "back_<color>"
+        char *key;
         texture_id value;
     } *card_textures;
 } app;
