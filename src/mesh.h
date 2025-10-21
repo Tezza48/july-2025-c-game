@@ -1,11 +1,10 @@
 #pragma once
 
 #include "tzl.h"
+#include <glad/glad.h>
 
-typedef struct vertex_layout *vertex_layout;
-
-bool vertex_layout_create(vertex_layout *out_layout);
-void vertex_layout_free(vertex_layout layout);
+GLuint vertex_layout_create();
+void vertex_layout_free(GLuint layout);
 
 typedef struct vertex
 {
@@ -20,22 +19,17 @@ typedef struct mesh_src_data
     u32 *indices;
 } mesh_src_data;
 
-typedef size mesh_id;
-typedef struct _mesh_t *mesh;
-typedef struct _mesh_t *mesh_array;
-
-typedef struct mesh_storage
+typedef struct mesh
 {
-    mesh_array data;
-    mesh_id *free_ids;
-} mesh_storage;
+    size num_vertices;
+    size num_indices;
+    GLuint vbuffer, ibuffer;
+} mesh;
 
-mesh_storage mesh_storage_init();
-void mesh_storage_cleanup(mesh_storage *storage);
-
-mesh_id mesh_create(mesh_storage *storage, mesh_src_data asset);
-mesh_id mesh_create_primitive_quad_y(mesh_storage *storage, f32 radius, vec4 color);
-
-bool mesh_draw(mesh_storage *storage, vertex_layout layout, mesh_id *meshes, size num_meshes);
-
-void mesh_cleanup(mesh_storage *storage, mesh_id mesh);
+mesh mesh_create(mesh_src_data asset);
+mesh mesh_create_primitive_quad_x(f32 radius, vec4 color);
+mesh mesh_create_primitive_quad_y(f32 radius, vec4 color);
+mesh mesh_create_primitive_quad_z(f32 radius, vec4 color);
+mesh mesh_create_sprite(f32 width, f32 height, vec4 color);
+void mesh_bind(GLuint layout, mesh *m);
+void mesh_delete(mesh m);

@@ -1,23 +1,17 @@
 #pragma once
-#include "tzl.h"
-#include "shader.h"
-#include "mesh.h"
 
-typedef size entity_id;
-
-typedef struct transform
+typedef struct camera
 {
-    entity_id key;
+    tzl_mat4x4 proj;
+    tzl_mat4x4 view;
 
-    vec3 pos;
-    vec3 scale;
-    vec3 rot;
-} transform;
-
-typedef struct model
-{
-    entity_id key;
-
-    shader_id shader;
-    mesh_id mesh;
-} model;
+    bool isPerspective;
+    union
+    {
+        float fovy;
+        float width;
+    };
+    float aspect;
+    float nearz;
+    float farz;
+} camera;

@@ -9,48 +9,36 @@
 #include "shader.h"
 #include "texture.h"
 
-typedef struct camera
+typedef struct card
 {
-    tzl_mat4x4 proj;
-    tzl_mat4x4 view;
-
-    bool isPerspective;
-    union
-    {
-        float fovy;
-        float width;
-    };
-    float aspect;
-    float nearz;
-    float farz;
-} camera;
+    char *name;
+    vec2 pos;
+} card;
 
 typedef struct app
 {
     RGFW_window *win;
 
-    mesh_storage meshes;
-    shader_storage shaders;
-    texture_storage textures;
+    GLuint card_mesh;
 
-    entity_id next_entity;
-    transform *transform_map;
-    model *model_map;
+    GLuint vertex_layout;
+    GLuint global_shader;
 
-    vertex_layout standard_layout;
-    shader_id global_shader;
-
-    timer timer;
-
-    camera cam;
-    f32 cam_angle;
+    mesh test_mesh;
 
     // "<card_rank>_<card_suit>" OR "back_<color>"
     struct card_texture_map
     {
         char *key;
-        texture_id value;
+
+        texture value;
     } *card_textures;
+
+    card *cards;
+
+    timer timer;
+
+    camera cam;
 } app;
 
 app app_init(RGFW_window *win);

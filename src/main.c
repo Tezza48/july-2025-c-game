@@ -27,26 +27,16 @@ const char *const APP_SETTINGS_PATH = "./appSettings.bin";
 
 int main(int argc, char **argv)
 {
-    app_settings app_settings = {0};
-    char *app_settings_raw;
-    size app_settings_raw_len;
+    app_settings app_settings = (struct app_settings){
+        .width = 1280,
+        .height = 720,
+    };
 
     stbi_set_flip_vertically_on_load(true);
 
-    if (tzl_load_file(APP_SETTINGS_PATH, &app_settings_raw, &app_settings_raw_len) && sizeof(app_settings) == app_settings_raw_len)
-    {
-        memcpy_s(&app_settings, sizeof(app_settings), app_settings_raw, app_settings_raw_len);
-    }
-    else
-    {
-        app_settings = (struct app_settings){
-            .width = 500,
-            .height = 500,
-        };
-    }
-
     RGFW_windowFlags flags = 0;
     flags |= RGFW_windowCenter;
+    flags |= RGFW_windowNoResize;
 
     RGFW_window *win = RGFW_createWindow("name", RGFW_RECT(100, 100, app_settings.width, app_settings.height), flags);
     if (!win)

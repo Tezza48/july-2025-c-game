@@ -1,6 +1,8 @@
 #pragma once
 #include "tzl.h"
 
+#include <glad/glad.h>
+
 typedef struct global_matrix_block
 {
     mat4x4 model_mat;
@@ -8,19 +10,8 @@ typedef struct global_matrix_block
     mat4x4 proj_mat;
 } global_matrix_block;
 
-typedef size shader_id;
-typedef struct _shader_t *shader_array;
-typedef struct _shader_t *shader_p;
+/// @brief Creates a GL program from the provided shader sources.
+GLuint shader_load_src(const char *vert_src, const char *frag_src);
 
-typedef struct shader_storage
-{
-    /// @brief Dynamic array (stb_ds) of shaders
-    shader_array data;
-} shader_storage;
-
-shader_storage shader_storage_init();
-void shader_storage_cleanup(shader_storage *storage);
-shader_id shader_load_src(shader_storage *storage, const char *vert_src, const char *frag_src);
-
-void shader_update_resources(global_matrix_block matrices);
-void shader_use(shader_storage *storage, shader_id shader, global_matrix_block matrices);
+void shader_standard_update_resources(global_matrix_block matrices);
+void shader_delete(GLuint program);

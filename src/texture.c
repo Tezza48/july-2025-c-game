@@ -3,28 +3,7 @@
 #include "vendor/stb_image.h"
 #include "vendor/stb_ds.h"
 
-struct _texture_t
-{
-    int width;
-    int height;
-    GLuint texture;
-};
-
-texture_storage texture_storage_init()
-{
-    return (texture_storage){0};
-}
-void texture_storage_cleanup(texture_storage *storage)
-{
-    for (size i = 0; i < arrlen(storage->data); i++)
-    {
-        glDeleteTextures(1, &storage->data[i].texture);
-    }
-
-    arrfree(storage->data);
-}
-
-texture_id texture_load_file(texture_storage *storage, const char *filename)
+texture texture_load_file(const char *filename)
 {
     u32 x = 0, y = 0, bpp = 0;
     stbi_uc *data = stbi_load(filename, &x, &y, &bpp, STBI_rgb_alpha);
@@ -34,10 +13,10 @@ texture_id texture_load_file(texture_storage *storage, const char *filename)
         exit(tzl_exit_code_fopen_error);
     }
 
-    GLuint texture = 0;
-    glGenTextures(1, &texture);
+    GLuint tex = 0;
+    glGenTextures(1, &tex);
 
-    glBindTexture(GL_TEXTURE_2D, texture);
+    glBindTexture(GL_TEXTURE_2D, tex);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
@@ -48,17 +27,16 @@ texture_id texture_load_file(texture_storage *storage, const char *filename)
 
     glBindTexture(GL_TEXTURE_2D, 0);
 
-    glObjectLabel(GL_TEXTURE, texture, -1, filename);
-
-    texture_id id = arrlen(storage->data);
-    arrput(storage->data, ((struct _texture_t){.width = x, .height = y, .texture = texture}));
-
+    glObjectLabel(GL_TEXTURE, tex, -1, filename);
     stbi_image_free(data);
 
-    return id;
+    return (texture){
+        .width = x,
+        .height = y,
+        .texture = tex};
 }
 
-GLuint texture_get_gl_texture(texture_storage *storage, texture_id id)
+void texture_delete(texture tex)
 {
-    return storage->data[id].texture;
+    glDeleteTextures(1, &tex.texture);
 }

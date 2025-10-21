@@ -19,6 +19,7 @@
         "component.h": "c",
         "shader.h": "c",
         "app.h": "c",
-        "unistd.h": "c"
+        "unistd.h": "c",
+        "stdlib.h": "c"
     }
 }
