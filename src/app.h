@@ -41,8 +41,6 @@ typedef struct app
     camera cam;
 } app;
 
-app app_init(RGFW_window *win);
+app app_create();
 void app_start(app *app);
-void app_resize(app *app);
-void app_tick(app *app);
 void app_cleanup(app *app);
