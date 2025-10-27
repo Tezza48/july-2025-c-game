@@ -101,9 +101,9 @@ static inline void tzl_f32_lerp(tzl_f32 lhs, tzl_f32 rhs, tzl_f32 t, tzl_f32 *ou
     *out = lhs + (rhs - lhs) * t;
 }
 
-typedef float tzl_vec2[2];
-typedef float tzl_vec3[3];
-typedef float tzl_vec4[4];
+typedef tzl_f32 tzl_vec2[2];
+typedef tzl_f32 tzl_vec3[3];
+typedef tzl_f32 tzl_vec4[4];
 
 static inline void tzl_vec2_add(tzl_vec2 lhs, tzl_vec2 rhs, tzl_vec2 out)
 {

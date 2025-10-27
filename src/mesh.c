@@ -117,7 +117,7 @@ void mesh_bind(GLuint layout, mesh *m)
     glVertexArrayElementBuffer(layout, m->ibuffer);
 }
 
-void mesh_cleanup(mesh m)
+void mesh_delete(mesh m)
 {
     glDeleteBuffers(1, &m.vbuffer);
     glDeleteBuffers(1, &m.ibuffer);

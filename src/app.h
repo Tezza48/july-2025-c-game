@@ -11,20 +11,19 @@
 
 typedef struct card
 {
-    char *name;
+    char *texture_name;
     vec2 pos;
+    vec2 anchor;
 } card;
 
 typedef struct app
 {
     RGFW_window *win;
 
-    GLuint card_mesh;
-
     GLuint vertex_layout;
     GLuint global_shader;
 
-    mesh test_mesh;
+    mesh card_mesh;
 
     // "<card_rank>_<card_suit>" OR "back_<color>"
     struct card_texture_map
@@ -32,15 +31,19 @@ typedef struct app
         char *key;
 
         texture value;
-    } *card_textures;
+    } *sh_card_textures;
 
     card *cards;
+
+    size deck_card_id;
+    size room_card_id[4];
+    size discard_top_card_id;
 
     timer timer;
 
     camera cam;
 } app;
 
-app app_create();
+void app_init(app* app);
 void app_start(app *app);
 void app_cleanup(app *app);

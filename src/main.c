@@ -13,7 +13,8 @@ int main(int argc, char **argv)
 {
     stbi_set_flip_vertically_on_load(true);
 
-    app app = app_create();
+    app app = {0};
+    app_init(&app);
     app_start(&app);
 
     app_cleanup(&app);
