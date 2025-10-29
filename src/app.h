@@ -14,6 +14,7 @@ typedef struct card
     char *texture_name;
     vec2 pos;
     vec2 anchor;
+    bool hidden;
 } card;
 
 typedef struct app
@@ -36,7 +37,7 @@ typedef struct app
     card *cards;
 
     size deck_card_id;
-    size room_card_id[4];
+    size room_card_ids[4];
     size discard_top_card_id;
 
     timer timer;

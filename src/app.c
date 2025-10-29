@@ -176,10 +176,42 @@ void _tick(app *app)
 
 void _create_scene(app *app)
 {
+    f32 top = 360.0f, bottom = -360.0f, left = -640.0f, right = 640.0f, centerX = 0.0f, centerY = 0.0f;
+
     app->deck_card_id = arrlen(app->cards);
-    arrput(app->cards, ((card){.texture_name = "back_green", .pos = {0.0f, 360.0f}, .anchor = {0.5f, 0}}));
+    arrput(app->cards, ((card){
+        .texture_name = "back_green", 
+        .pos = {centerX, top}, 
+        .anchor = {0.5f, 0}
+    }));
 
-
+    app->room_card_ids[0] = arrlen(app->cards);
+    arrput(app->cards, ((card){
+        .texture_name = "A_Spades", 
+        .pos = {centerX - 300, centerY}, 
+        .anchor = {0.5, 0.5}
+    }));
+    
+    app->room_card_ids[1] = arrlen(app->cards);
+    arrput(app->cards, ((card){
+        .texture_name = "A_Hearts", 
+        .pos = {centerX - 100, centerY}, 
+        .anchor = {0.5, 0.5}
+    }));
+    
+    app->room_card_ids[2] = arrlen(app->cards);
+    arrput(app->cards, ((card){
+        .texture_name = "A_Clubs", 
+        .pos = {centerX + 100, centerY}, 
+        .anchor = {0.5, 0.5}
+    }));
+    
+    app->room_card_ids[3] = arrlen(app->cards);
+    arrput(app->cards, ((card){
+        .texture_name = "A_Diamonds", 
+        .pos = {centerX + 300, centerY}, 
+        .anchor = {0.5, 0.5}
+    }));
 }
 
 void app_init(app *app)
